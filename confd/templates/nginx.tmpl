@@ -12,7 +12,6 @@ server {
 
     location @rewriteapp {
         rewrite ^(.*)$ /index.php/$1 last;
-        rewrite ^/index.php/(.*)$ /playground.php/$1 last;
     }
 
     location ~ ^/(index|app|app_dev|config|playground)\.php(/|$) {
