@@ -1,5 +1,8 @@
 # nginx
 
+[![](https://images.microbadger.com/badges/version/he8us/nginx.svg)](http://microbadger.com/images/he8us/nginx "Get your own version badge on microbadger.com")
+[![](https://images.microbadger.com/badges/image/he8us/nginx.svg)](http://microbadger.com/images/he8us/nginx "Get your own image badge on microbadger.com")
+
 nginx image configured with [Confd](https://github.com/kelseyhightower/confd)
 
 ## How to use this image
