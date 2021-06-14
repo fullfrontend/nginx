@@ -13,6 +13,8 @@ services:
             - ./:/app/www
     nginx:
         image: he8us/nginx:latest
+        build:
+            context: ..
         ports:
             - 8081:80
         volumes_from:

@@ -4,7 +4,7 @@ MAINTAINER Cedric Michaux <cedric@fullfrontend.eu>
 
 EXPOSE 80
 
-COPY entrypoint.sh /app/entrypoint.sh
+COPY entrypoint.sh /etc/nginx/entrypoint.sh
 COPY confd/ /etc/confd
 
 ENV CONFD_VERSION 0.16.0
@@ -17,6 +17,6 @@ RUN \
     chmod +x /usr/local/bin/confd
 
 
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["/etc/nginx/entrypoint.sh"]
 
 CMD ["nginx", "-g", "daemon off;"]
