@@ -1,13 +1,13 @@
 FROM nginx:stable-alpine
 
-MAINTAINER Cedric Michaux <cedric@adlogix.eu>
+MAINTAINER Cedric Michaux <cedric@fullfrontend.eu>
 
 EXPOSE 80
 
 COPY entrypoint.sh /app/entrypoint.sh
 COPY confd/ /etc/confd
 
-ENV CONFD_VERSION 0.11.0
+ENV CONFD_VERSION 0.16.0
 
 RUN \
     apk add --update curl bash
