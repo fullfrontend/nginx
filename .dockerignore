@@ -3,3 +3,5 @@
 .dockerignore
 README.md
 LICENSE
+example
+example/docker-compose.yml

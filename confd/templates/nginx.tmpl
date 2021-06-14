@@ -1,5 +1,5 @@
 upstream php-upstream {
-    server php:9000;
+    server {{ getenv "PHP_UPSTREAM" }};
 }
 
 server {

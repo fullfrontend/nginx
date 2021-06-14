@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+    php-runner:
+        image: he8us/php-fpm-prod:latest
+        expose:
+            - 9000
+        environment:
+            APPLICATION_ENV: dev
+            TIMEZONE: "Europe/Brussels"
+
+        volumes:
+            - ./:/app/www
+    nginx:
+        image: he8us/nginx
+        ports:
+            - 8081:80
+        volumes_from:
+            - php-runner:ro
+        depends_on:
+            - php-runner
+        environment:
+            PHP_UPSTREAM: "php-runner:9000"
+            VIRTUAL_HOST: "he8us.test"
+            DOCUMENT_ROOT: "/app/www"
