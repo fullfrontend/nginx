@@ -10,9 +10,7 @@ COPY confd/ /etc/confd
 ENV CONFD_VERSION 0.16.0
 
 RUN \
-    apk add --update curl bash
-
-RUN \
+    apk add --update curl bash && \
     curl -L -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v${CONFD_VERSION}/confd-${CONFD_VERSION}-linux-amd64 && \
     chmod +x /usr/local/bin/confd
 
