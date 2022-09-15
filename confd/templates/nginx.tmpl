@@ -1,7 +1,3 @@
-upstream php-upstream {
-    server {{ getenv "PHP_UPSTREAM" }};
-}
-
 server {
     server_name {{ getenv "VIRTUAL_HOST" }};
     root {{ getenv "DOCUMENT_ROOT" }};
@@ -20,6 +16,11 @@ server {
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         fastcgi_param HTTPS off;
+    }
+
+    location ~* ^.+\.(png|jpe?g)$ {
+        add_header Vary Accept;
+        try_files $uri$webp_suffix $uri =404;
     }
 
     error_log stderr;
