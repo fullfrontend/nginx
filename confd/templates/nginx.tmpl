@@ -23,7 +23,7 @@ server {
         try_files $uri$webp_suffix $uri =404;
     }
 
-    include conf.d/static_brotli.conf;
+    include static-brotli.conf;
 
     error_log stderr;
     access_log /dev/stdout;
