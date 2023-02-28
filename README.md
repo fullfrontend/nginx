@@ -3,9 +3,13 @@
 nginx image configured with [Confd](https://github.com/kelseyhightower/confd). This image is meant to run behind a 
 load balancer like [Traefik](https://traefik.io/)
 
+/!\ Since I need to use [Brotli](https://en.wikipedia.org/wiki/Brotli) compression algorithm, NGINX is compiled with 
+it available, enjoy!
+
 ## How to use this image
 
-This image is made to be used in conjunction with an other php-fpm image. You can see mine for my prod server on [it's repo](https://github.com/he8us/php-fpm-prod)
+This image is made to be used in conjunction with a php-fpm image [like mine]
+(https://github.com/fullfrontend/php-fpm)
 
 I use docker compose to handle my stack so here is my nginx config:
 ```
