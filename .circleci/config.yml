@@ -1,0 +1,33 @@
+version: 2
+jobs:
+    build-and-push:
+        docker:
+            -   image: cimg/base:current
+                environment:
+                    IMAGE_NAME: he8us/nginx
+        steps:
+            - checkout
+            -   setup_remote_docker:
+                    version: 20.10.6
+
+            -   run:
+                    name: "Build and push Docker image"
+                    command: |
+                        IMAGE_TAG="${CIRCLE_SHA1:0:7}"
+                        
+                        docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+
+                        if [ "${CIRCLE_BRANCH}" == "master" ]; then
+                            docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
+                        fi
+                        echo ${DOCKER_PWD} | docker login -u ${DOCKER_LOGIN} --password-stdin
+                        docker push ${IMAGE_NAME}
+
+workflows:
+    version: 2
+    build-and-push:
+        jobs:
+            -   build-and-push:
+                    filters:
+                        branches:
+                            only: master
