@@ -28,6 +28,7 @@ workflows:
     build-and-push:
         jobs:
             -   build-and-push:
+                    context: 'Docker Hub'
                     filters:
                         branches:
                             only: master
