@@ -1,20 +1,27 @@
 ARG NGINX_VERSION=1.25.0
+ARG NGINX_CACHE_PURGE_VERSION=2.5.3
 
 FROM nginx:${NGINX_VERSION}-alpine AS builder
 
 ARG NGINX_VERSION
+ARG NGINX_CACHE_PURGE_VERSION
 
 WORKDIR /root/
 
-RUN apk add --update --no-cache build-base git pcre-dev openssl-dev zlib-dev linux-headers \
-    && wget http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
-    && tar zxf nginx-${NGINX_VERSION}.tar.gz \
+RUN apk add --update --no-cache build-base git pcre-dev openssl-dev zlib-dev linux-headers tar \
+    && curl -L -o nginx-${NGINX_VERSION}.tar.gz http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
+    && tar -zvxf nginx-${NGINX_VERSION}.tar.gz \
     && git clone https://github.com/google/ngx_brotli.git \
     && cd ngx_brotli \
     && git submodule update --init --recursive \
-    && cd ../nginx-${NGINX_VERSION} \
+    && cd .. \
+    && echo "download https://github.com/nginx-modules/ngx_cache_purge/archive/refs/tags/${NGINX_CACHE_PURGE_VERSION}.tar.gz" \
+    && curl -L -o ngx_cache_purge-${NGINX_CACHE_PURGE_VERSION}.tar.gz https://github.com/nginx-modules/ngx_cache_purge/archive/refs/tags/${NGINX_CACHE_PURGE_VERSION}.tar.gz \
+    && tar -zvxf ngx_cache_purge-${NGINX_CACHE_PURGE_VERSION}.tar.gz \
+    && cd nginx-${NGINX_VERSION} \
     && ./configure \
     --add-dynamic-module=../ngx_brotli \
+    --add-dynamic-module=../ngx_cache_purge-${NGINX_CACHE_PURGE_VERSION} \
     --prefix=/etc/nginx \
     --sbin-path=/usr/sbin/nginx \
     --modules-path=/usr/lib/nginx/modules \
@@ -69,9 +76,11 @@ EXPOSE 80
 
 COPY --from=builder /root/nginx-${NGINX_VERSION}/objs/ngx_http_brotli_filter_module.so /usr/lib/nginx/modules/
 COPY --from=builder /root/nginx-${NGINX_VERSION}/objs/ngx_http_brotli_static_module.so /usr/lib/nginx/modules/
+COPY --from=builder /root/nginx-${NGINX_VERSION}/objs/ngx_http_cache_purge_module.so /usr/lib/nginx/modules/
 
 RUN echo "load_module modules/ngx_http_brotli_static_module.so;"|cat - /etc/nginx/nginx.conf > /tmp/out && mv /tmp/out /etc/nginx/nginx.conf &&\
-    echo "load_module modules/ngx_http_brotli_filter_module.so;"|cat - /etc/nginx/nginx.conf > /tmp/out && mv /tmp/out /etc/nginx/nginx.conf
+    echo "load_module modules/ngx_http_brotli_filter_module.so;"|cat - /etc/nginx/nginx.conf > /tmp/out && mv /tmp/out /etc/nginx/nginx.conf &&\
+    echo "load_module modules/ngx_http_cache_purge_module.so;"|cat - /etc/nginx/nginx.conf > /tmp/out && mv /tmp/out /etc/nginx/nginx.conf
 
 COPY entrypoint.sh /etc/nginx/entrypoint.sh
 
