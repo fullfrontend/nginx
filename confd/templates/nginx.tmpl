@@ -7,6 +7,8 @@ server {
     server_name {{ getenv "VIRTUAL_HOST" }};
     root {{ getenv "DOCUMENT_ROOT" }};
 
+    server_tokens off;
+
     set $skip_cache 0;
 
     if ($request_method = POST) {
