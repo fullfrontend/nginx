@@ -7,10 +7,9 @@ jobs:
                     IMAGE_NAME: he8us/nginx
         steps:
             - checkout
-            -   setup_remote_docker:
-                    version: 20.10.6
+            - setup_remote_docker:
 
-            -   run:
+            - run:
                     name: "Build and push Docker image"
                     command: |
                         IMAGE_TAG="${CIRCLE_SHA1:0:7}"
