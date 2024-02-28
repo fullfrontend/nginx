@@ -11,9 +11,12 @@ WORKDIR /root/
 RUN apk add --update --no-cache build-base git pcre-dev openssl-dev zlib-dev linux-headers tar cmake \
     && curl -L -o nginx-${NGINX_VERSION}.tar.gz http://nginx.org/download/nginx-${NGINX_VERSION}.tar.gz \
     && tar -zvxf nginx-${NGINX_VERSION}.tar.gz \
-    && git clone --recurse-submodules -j8 https://github.com/google/ngx_brotli \
-    && mkdir -p ngx_brotli/deps/brotli/out \
-    && cd ngx_brotli/deps/brotli/out \
+    && git clone https://github.com/google/ngx_brotli.git \
+    && cd ngx_brotli \
+    && git reset --hard 63ca02a \
+    && git submodule update --init --recursive \
+    && mkdir -p deps/brotli/out \
+    && cd deps/brotli/out \
     && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="-Ofast -m64 -march=native -mtune=native -flto -funroll-loops -ffunction-sections -fdata-sections -Wl,--gc-sections" -DCMAKE_CXX_FLAGS="-Ofast -m64 -march=native -mtune=native -flto -funroll-loops -ffunction-sections -fdata-sections -Wl,--gc-sections" -DCMAKE_INSTALL_PREFIX=./installed .. \
     && cmake --build . --config Release --target brotlienc \
     && cd ../../../.. \
