@@ -1,5 +1,6 @@
 ARG NGINX_VERSION=1.25.4
 ARG NGINX_CACHE_PURGE_VERSION=2.5.3
+ARG BROTLI_MODULE_COMMIT=63ca02a
 
 FROM nginx:${NGINX_VERSION}-alpine AS builder
 
@@ -13,7 +14,7 @@ RUN apk add --update --no-cache build-base git pcre-dev openssl-dev zlib-dev lin
     && tar -zvxf nginx-${NGINX_VERSION}.tar.gz \
     && git clone https://github.com/google/ngx_brotli.git \
     && cd ngx_brotli \
-    && git reset --hard 63ca02a \
+    && git reset --hard ${BROTLI_MODULE_COMMIT} \
     && git submodule update --init --recursive \
     && mkdir -p deps/brotli/out \
     && cd deps/brotli/out \
