@@ -90,7 +90,7 @@ RUN echo "load_module modules/ngx_http_brotli_static_module.so;"|cat - /etc/ngin
 
 COPY entrypoint.sh /etc/nginx/entrypoint.sh
 
-ENV CONFD_VERSION 0.16.0
+ENV CONFD_VERSION=0.16.0
 
 RUN \
     apk --no-cache add bash && \
