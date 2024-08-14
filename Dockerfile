@@ -1,4 +1,4 @@
-ARG NGINX_VERSION=1.25.4
+ARG NGINX_VERSION=1.27.0
 ARG NGINX_CACHE_PURGE_VERSION=2.5.3
 ARG BROTLI_MODULE_COMMIT=63ca02a
 
@@ -94,7 +94,7 @@ ENV CONFD_VERSION=0.16.0
 
 RUN \
     apk --no-cache add bash && \
-    apk --no-cache add --virtual .build-deps curl bash && \
+    apk --no-cache add --virtual .build-deps curl && \
     curl -L -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v${CONFD_VERSION}/confd-${CONFD_VERSION}-linux-amd64 && \
     chmod +x /usr/local/bin/confd && \
     apk del .build-deps
