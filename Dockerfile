@@ -1,4 +1,4 @@
-ARG NGINX_VERSION=1.27.0
+ARG NGINX_VERSION=1.25.4
 ARG NGINX_CACHE_PURGE_VERSION=2.5.3
 ARG BROTLI_MODULE_COMMIT=63ca02a
 
@@ -100,6 +100,8 @@ RUN \
     apk del .build-deps
 
 COPY confd/ /etc/confd
+
+RUN mkdir -p /tmp/cores
 
 ENTRYPOINT ["/etc/nginx/entrypoint.sh"]
 
