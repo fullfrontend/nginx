@@ -76,7 +76,7 @@ FROM nginx:${NGINX_VERSION}-alpine
 
 ARG NGINX_VERSION
 
-MAINTAINER Cedric Michaux <cedric@fullfrontend.eu>
+LABEL maintainer="Cedric Michaux <cedric@fullfrontend.eu>"
 
 EXPOSE 80
 
