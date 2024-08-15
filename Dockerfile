@@ -101,8 +101,6 @@ RUN \
 
 COPY confd/ /etc/confd
 
-RUN mkdir -p /tmp/cores
-
 ENTRYPOINT ["/etc/nginx/entrypoint.sh"]
 
 CMD ["nginx", "-g", "daemon off;"]
