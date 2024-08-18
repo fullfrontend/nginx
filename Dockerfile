@@ -75,22 +75,13 @@ RUN apk add --update --no-cache build-base git pcre-dev openssl-dev zlib-dev lin
 FROM nginx:${NGINX_VERSION}-alpine
 
 ARG NGINX_VERSION
+ENV CONFD_VERSION=0.16.0
 
 LABEL maintainer="Cedric Michaux <cedric@fullfrontend.eu>"
 
 EXPOSE 80
 
-COPY --from=builder /root/nginx-${NGINX_VERSION}/objs/ngx_http_brotli_filter_module.so /usr/lib/nginx/modules/
-COPY --from=builder /root/nginx-${NGINX_VERSION}/objs/ngx_http_brotli_static_module.so /usr/lib/nginx/modules/
-COPY --from=builder /root/nginx-${NGINX_VERSION}/objs/ngx_http_cache_purge_module.so /usr/lib/nginx/modules/
-
-RUN echo "load_module modules/ngx_http_brotli_static_module.so;"|cat - /etc/nginx/nginx.conf > /tmp/out && mv /tmp/out /etc/nginx/nginx.conf &&\
-    echo "load_module modules/ngx_http_brotli_filter_module.so;"|cat - /etc/nginx/nginx.conf > /tmp/out && mv /tmp/out /etc/nginx/nginx.conf &&\
-    echo "load_module modules/ngx_http_cache_purge_module.so;"|cat - /etc/nginx/nginx.conf > /tmp/out && mv /tmp/out /etc/nginx/nginx.conf
-
-COPY entrypoint.sh /etc/nginx/entrypoint.sh
-
-ENV CONFD_VERSION=0.16.0
+RUN mkdir -p /tmp/cores/
 
 RUN \
     apk --no-cache add bash && \
@@ -98,6 +89,19 @@ RUN \
     curl -L -o /usr/local/bin/confd https://github.com/kelseyhightower/confd/releases/download/v${CONFD_VERSION}/confd-${CONFD_VERSION}-linux-amd64 && \
     chmod +x /usr/local/bin/confd && \
     apk del .build-deps
+
+COPY --from=builder /root/nginx-${NGINX_VERSION}/objs/ngx_http_brotli_filter_module.so /usr/lib/nginx/modules/
+COPY --from=builder /root/nginx-${NGINX_VERSION}/objs/ngx_http_brotli_static_module.so /usr/lib/nginx/modules/
+COPY --from=builder /root/nginx-${NGINX_VERSION}/objs/ngx_http_cache_purge_module.so /usr/lib/nginx/modules/
+
+# Already loaded in the config
+#RUN echo "load_module modules/ngx_http_brotli_static_module.so;"|cat - /etc/nginx/nginx.conf > /tmp/out && mv /tmp/out /etc/nginx/nginx.conf &&\
+#    echo "load_module modules/ngx_http_brotli_filter_module.so;"|cat - /etc/nginx/nginx.conf > /tmp/out && mv /tmp/out /etc/nginx/nginx.conf &&\
+#    echo "load_module modules/ngx_http_cache_purge_module.so;"|cat - /etc/nginx/nginx.conf > /tmp/out && mv /tmp/out /etc/nginx/nginx.conf
+
+
+
+COPY entrypoint.sh /etc/nginx/entrypoint.sh
 
 COPY confd/ /etc/confd
 

@@ -1,0 +1,58 @@
+fastcgi_cache_path /tmp/nginx-cache levels=1:2 keys_zone=APPCACHE:100m inactive=60m;
+fastcgi_cache_key "$scheme$request_method$host$request_uri";
+fastcgi_cache_use_stale error timeout invalid_header http_500;
+fastcgi_ignore_headers Cache-Control Expires Set-Cookie;
+
+server {
+    server_name {{ getenv "VIRTUAL_HOST" }};
+    root {{ getenv "DOCUMENT_ROOT" }};
+
+    server_tokens off;
+
+    set $skip_cache 0;
+
+    if ($request_method = POST) {
+        set $skip_cache 1;
+    }
+    if ($query_string != "") {
+        set $skip_cache 1;
+    }
+
+
+    location / {
+        try_files $uri @rewriteapp;
+    }
+
+    location @rewriteapp {
+        rewrite ^(.*)$ /index.php/$1 last;
+    }
+
+    location ~ ^/(index|app|app_dev|config|playground)\.php(/|$) {
+        fastcgi_pass php-upstream;
+        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+        include fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param HTTPS off;
+
+        fastcgi_cache_bypass $skip_cache;
+        fastcgi_no_cache $skip_cache;
+        fastcgi_cache APPCACHE;
+        fastcgi_cache_valid  60m;
+    }
+
+    location ~ /purge(/.*) {
+        fastcgi_cache_purge APPCACHE "$scheme$request_method$host$1";
+    }
+
+
+    location ~* ^.+\.(png|jpe?g)$ {
+        add_header Vary Accept;
+        try_files $uri$webp_suffix $uri =404;
+        access_log off;
+        log_not_found off;
+        expires max;
+    }
+
+    error_log /dev/stderr;
+    access_log /dev/stdout;
+}

@@ -1,58 +1,37 @@
-fastcgi_cache_path /tmp/nginx-cache levels=1:2 keys_zone=APPCACHE:100m inactive=60m;
-fastcgi_cache_key "$scheme$request_method$host$request_uri";
-fastcgi_cache_use_stale error timeout invalid_header http_500;
-fastcgi_ignore_headers Cache-Control Expires Set-Cookie;
 
-server {
-    server_name {{ getenv "VIRTUAL_HOST" }};
-    root {{ getenv "DOCUMENT_ROOT" }};
+user  nginx;
+worker_processes  auto;
 
-    server_tokens off;
+error_log  /dev/stderr notice;
+pid        /var/run/nginx.pid;
+working_directory /tmp/cores/;
+worker_rlimit_core 500M;
 
-    set $skip_cache 0;
+load_module modules/ngx_http_brotli_static_module.so;
+load_module modules/ngx_http_brotli_filter_module.so;
+load_module modules/ngx_http_cache_purge_module.so;
 
-    if ($request_method = POST) {
-        set $skip_cache 1;
-    }
-    if ($query_string != "") {
-        set $skip_cache 1;
-    }
+events {
+    worker_connections  1024;
+}
 
 
-    location / {
-        try_files $uri @rewriteapp;
-    }
+http {
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
 
-    location @rewriteapp {
-        rewrite ^(.*)$ /index.php/$1 last;
-    }
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
 
-    location ~ ^/(index|app|app_dev|config|playground)\.php(/|$) {
-        fastcgi_pass php-upstream;
-        fastcgi_split_path_info ^(.+\.php)(/.*)$;
-        include fastcgi_params;
-        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
-        fastcgi_param HTTPS off;
+    access_log  /dev/stdout  main;
 
-        fastcgi_cache_bypass $skip_cache;
-        fastcgi_no_cache $skip_cache;
-        fastcgi_cache APPCACHE;
-        fastcgi_cache_valid  60m;
-    }
+    sendfile        on;
+    #tcp_nopush     on;
 
-    location ~ /purge(/.*) {
-        fastcgi_cache_purge APPCACHE "$scheme$request_method$host$1";
-    }
+    keepalive_timeout  65;
 
+    #gzip  on;
 
-    location ~* ^.+\.(png|jpe?g)$ {
-        add_header Vary Accept;
-        try_files $uri$webp_suffix $uri =404;
-        access_log off;
-        log_not_found off;
-        expires max;
-    }
-
-    error_log /dev/stderr;
-    access_log /dev/stdout;
+    include /etc/nginx/conf.d/*.conf;
 }
