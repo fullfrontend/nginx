@@ -1,6 +1,6 @@
 ARG NGINX_VERSION=1.27.0
 ARG NGINX_CACHE_PURGE_VERSION=2.5.3
-ARG BROTLI_MODULE_COMMIT=a71f931
+ARG BROTLI_MODULE_COMMIT=6e975bc
 
 FROM nginx:${NGINX_VERSION}-alpine AS builder
 
@@ -21,7 +21,6 @@ RUN apk add --update --no-cache build-base git pcre-dev openssl-dev zlib-dev lin
     && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=OFF -DCMAKE_C_FLAGS="-Ofast -m64 -march=native -mtune=native -flto -funroll-loops -ffunction-sections -fdata-sections -Wl,--gc-sections" -DCMAKE_CXX_FLAGS="-Ofast -m64 -march=native -mtune=native -flto -funroll-loops -ffunction-sections -fdata-sections -Wl,--gc-sections" -DCMAKE_INSTALL_PREFIX=./installed .. \
     && cmake --build . --config Release --target brotlienc \
     && cd ../../../.. \
-    && echo "download https://github.com/nginx-modules/ngx_cache_purge/archive/refs/tags/${NGINX_CACHE_PURGE_VERSION}.tar.gz" \
     && curl -L -o ngx_cache_purge-${NGINX_CACHE_PURGE_VERSION}.tar.gz https://github.com/nginx-modules/ngx_cache_purge/archive/refs/tags/${NGINX_CACHE_PURGE_VERSION}.tar.gz \
     && tar -zvxf ngx_cache_purge-${NGINX_CACHE_PURGE_VERSION}.tar.gz \
     && cd nginx-${NGINX_VERSION} \
