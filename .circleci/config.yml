@@ -4,7 +4,7 @@ jobs:
         docker:
             -   image: cimg/base:current
                 environment:
-                    IMAGE_NAME: he8us/nginx
+                    IMAGE_NAME: fullfrontend/nginx
         steps:
             - checkout
             - setup_remote_docker:
@@ -19,7 +19,7 @@ jobs:
                         if [ "${CIRCLE_BRANCH}" == "master" ]; then
                             docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
                         fi
-                        echo ${DOCKER_PWD} | docker login -u ${DOCKER_LOGIN} --password-stdin
+                        echo ${FFE_DOCKER_PWD} | docker login -u ${FFE_DOCKER_LOGIN} --password-stdin
                         docker push --all-tags ${IMAGE_NAME}
 
 workflows:
