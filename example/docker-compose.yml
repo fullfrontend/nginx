@@ -11,6 +11,7 @@ services:
 
         volumes:
             - ./:/app/www
+
     nginx:
         image: fullfrontend/nginx:latest
         build:

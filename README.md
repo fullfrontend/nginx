@@ -8,8 +8,7 @@ it available, enjoy!
 
 ## How to use this image
 
-This image is made to be used in conjunction with a php-fpm image [like mine]
-(https://github.com/fullfrontend/php-fpm)
+This image is made to be used in conjunction with a php-fpm image [like mine](https://github.com/fullfrontend/php-fpm)
 
 I use docker compose to handle my stack so here is my nginx config:
 ```

@@ -1,4 +1,4 @@
-ARG NGINX_VERSION=1.27.0
+ARG NGINX_VERSION=1.27.4
 ARG NGINX_CACHE_PURGE_VERSION=2.5.3
 ARG BROTLI_MODULE_COMMIT=6e975bc
 
@@ -76,7 +76,7 @@ FROM nginx:${NGINX_VERSION}-alpine
 ARG NGINX_VERSION
 ENV CONFD_VERSION=0.16.0
 
-LABEL maintainer="Cedric Michaux <cedric@fullfrontend.eu>"
+LABEL maintainer="Cedric Michaux <cedric@fullfrontend.be>"
 
 EXPOSE 80
 
