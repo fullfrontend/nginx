@@ -1,26 +1,45 @@
-version: 2
+version: 2.1
 jobs:
     build-and-push:
-        docker:
-            -   image: cimg/base:current
-                environment:
-                    IMAGE_NAME: fullfrontend/nginx
+        machine:
+            image: ubuntu-2204:current
+        environment:
+            DOCKER_BUILDKIT: 1
+            BUILDX_PLATFORMS: linux/amd64,linux/arm64/v8
+            BUILDX_NO_DEFAULT_LOAD: false
+            IMAGE_NAME: fullfrontend/nginx
         steps:
             - checkout
-            - setup_remote_docker:
+            - run:
+                name: Log in to docker hub
+                command: |
+                    echo $FFE_DOCKER_PWD | docker login -u $FFE_DOCKER_LOGIN --password-stdin
+            - run:
+                name: Install buildx
+                command: |
+                    BUILDX_BINARY_URL="https://github.com/docker/buildx/releases/download/v0.4.2/buildx-v0.4.2.linux-amd64"
+                    
+                    curl --output docker-buildx \
+                      --silent --show-error --location --fail --retry 3 \
+                      "$BUILDX_BINARY_URL"
+                    
+                    mkdir -p ~/.docker/cli-plugins
+                    
+                    mv docker-buildx ~/.docker/cli-plugins/
+                    chmod a+x ~/.docker/cli-plugins/docker-buildx
+                    
+                    docker buildx install
+                    # Run binfmt
+                    docker run --rm --privileged tonistiigi/binfmt:latest --install "$BUILDX_PLATFORMS"
 
             - run:
-                    name: "Build and push Docker image"
-                    command: |
-                        IMAGE_TAG="1.27.0.${CIRCLE_SHA1:0:7}"
-                        
-                        docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
-
-                        if [ "${CIRCLE_BRANCH}" == "master" ]; then
-                            docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest
-                        fi
-                        echo ${FFE_DOCKER_PWD} | docker login -u ${FFE_DOCKER_LOGIN} --password-stdin
-                        docker push --all-tags ${IMAGE_NAME}
+                  name: Build from dockerfile
+                  command: |
+                      IMAGE_TAG="1.27.0.${CIRCLE_SHA1:0:7}"
+                      docker buildx create --name fullfrontend --use
+                      docker buildx build --platform ${BUILDX_PLATFORMS} -t ${IMAGE_NAME}:${IMAGE_TAG} --push .
+                      docker buildx build --platform ${BUILDX_PLATFORMS} -t ${IMAGE_NAME}:latest --push .
+           
 
 workflows:
     version: 2
